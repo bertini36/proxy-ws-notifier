@@ -44,11 +44,6 @@ make build
 make up
 ```
 
-**Stop environment**
-```bash
-make down
-```
-
 You can specify your own configurations in a `.env` file.
 ```
 cp notifier/.env-sample notifier/.env

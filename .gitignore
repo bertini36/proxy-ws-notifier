@@ -16,4 +16,4 @@ __pycache__
 .idea
 
 # Confs
-profiler/.env
+notifier/.env
