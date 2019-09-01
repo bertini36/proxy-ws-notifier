@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Test</title>
+</head>
+
+<body>
+
+    <label>Write an user</label>
+    <input id="input" type="text" value="bertini36">
+    <button onclick="connect()">Connect</button>
+
+    <script type="text/javascript">
+
+        function connect() {
+
+            let user = document.querySelector("#input").value;
+            const ws = new WebSocket(`ws://127.0.0.1:8000/notifications/${user}`);
+            console.log(`Waiting for ${user} notifications...`);
+
+            ws.onmessage = function(event) {
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                    console.log(data);
+                } catch(e) {
+                    return console.log(e);
+                }
+            };
+
+        }
+
+    </script>
+
+</body>
+
+</html>
