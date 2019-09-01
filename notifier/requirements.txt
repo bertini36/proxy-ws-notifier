@@ -1,0 +1,4 @@
+sanic==19.6.3
+aio-pika==6.1.0
+loguru==0.2.5
+environs==5.2.1

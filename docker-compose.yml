@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - 'rabbitmq_data:/data'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 20s
+      retries: 50
+
+  notifier:
+    build: ./notifier/
+    volumes:
+      - ./notifier:/data/notifier
+    ports:
+      - 8000:8000
+    links:
+      - rabbit
+    restart: on-failure
+    depends_on:
+      - rabbit
+
+volumes:
+  rabbitmq_data:
