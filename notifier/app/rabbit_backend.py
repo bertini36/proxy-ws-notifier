@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+from abc import ABC, abstractmethod
 
 from aio_pika import connect_robust, ExchangeType, Message
 from loguru import logger
@@ -9,7 +10,26 @@ from loguru import logger
 from .settings import TASK_HOST
 
 
-class RabbitBackend:
+class Backend(ABC):
+
+    @abstractmethod
+    async def connect(self):
+        pass
+
+    @abstractmethod
+    async def disconnect(self):
+        pass
+
+    @abstractmethod
+    async def read(self, async_callback):
+        pass
+
+    @abstractmethod
+    async def write(self, message: dict):
+        pass
+
+
+class RabbitBackend(Backend):
 
     def __init__(self, routing_key: str, loop):
         self.routing_key = routing_key
@@ -20,7 +40,7 @@ class RabbitBackend:
         self.exchange = None
         self.queue = None
 
-    async def set_up(self):
+    async def connect(self):
         self.connection = await connect_robust(
             host=TASK_HOST,
             loop=self.loop
@@ -47,9 +67,6 @@ class RabbitBackend:
         await self.queue.delete()
         await self.connection.close()
 
-
-class RabbitReader(RabbitBackend):
-
     async def read_queue(self, async_callback):
         async with self.queue.iterator() as queue_iter:
             async for message in queue_iter:
@@ -62,6 +79,7 @@ class RabbitReader(RabbitBackend):
         await async_callback(data)
 
     async def read(self, async_callback):
+        await self.connect()
         try:
             tasks = [
                 self.read_queue(async_callback)
@@ -71,10 +89,8 @@ class RabbitReader(RabbitBackend):
             logger.error(f'ERROR {e}')
             await self.disconnect()
 
-
-class RabbitWriter(RabbitBackend):
-
     async def write(self, message: dict):
+        await self.connect()
         try:
             await self.exchange.publish(
                 Message(

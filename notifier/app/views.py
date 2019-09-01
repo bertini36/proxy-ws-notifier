@@ -8,7 +8,7 @@ from sanic import Blueprint
 from sanic.response import text
 from sanic.websocket import ConnectionClosed
 
-from .rabbit_backend import RabbitReader, RabbitWriter
+from .rabbit_backend import RabbitBackend
 
 bp = Blueprint('notifier')
 connected = set()
@@ -28,8 +28,7 @@ async def notifications(request, ws, user_id: str):
     logger.info(f'User {user_id} connected')
     connected.add(ws)
     loop = asyncio.get_event_loop()
-    rabbit_reader = RabbitReader(user_id, loop)
-    await rabbit_reader.set_up()
+    rabbit_reader = RabbitBackend(user_id, loop)
     send_ws_function = partial(send_websocket, ws)
     await rabbit_reader.read(send_ws_function)
 
@@ -40,7 +39,6 @@ async def send_test_notification(request, user_id: str):
     Only for testing purposes
     """
     loop = asyncio.get_event_loop()
-    rabbit_writer = RabbitWriter(user_id, loop)
-    await rabbit_writer.set_up()
+    rabbit_writer = RabbitBackend(user_id, loop)
     await rabbit_writer.write({'message': f'{user_id} notification'})
     return text('Test notification generated')
