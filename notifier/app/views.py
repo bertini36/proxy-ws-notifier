@@ -8,7 +8,7 @@ from sanic import Blueprint
 from sanic.response import text
 from sanic.websocket import ConnectionClosed
 
-from .rabbit_backend import RabbitBackend
+from .backends.rabbit import RabbitBackend
 
 bp = Blueprint('notifier')
 connected = set()

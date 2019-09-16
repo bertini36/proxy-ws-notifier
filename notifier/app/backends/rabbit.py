@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from aio_pika import connect_robust, ExchangeType, Message
 from loguru import logger
 
-from .settings import TASK_HOST
+from ..settings import TASK_HOST
 
 
 class Backend(ABC):
